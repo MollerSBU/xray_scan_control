@@ -3,6 +3,7 @@ import gas_control.mfc_gui_async
 import xray_control.xray_frame
 import pa_control.pa_frame
 import motor_control.motor_frame
+import scan_control.scan_frame
 from tkinter import messagebox
 
 #
@@ -15,6 +16,7 @@ class main_frame:
         self.__iniitialize_xray_gui()
         self.__initialize_pa_gui()
         self.__intialize_motor_gui()
+        self.__intialize_scan_gui()
 
         self.root.protocol("WM_DELETE_WINDOW", self.__close_safely)
 
@@ -40,6 +42,11 @@ class main_frame:
         self.motor_frame = motor_control.motor_frame.motor_frame(self.root,
                 borderwidth = 3, relief = tk.RIDGE)
         self.motor_frame.grid(row = 0, column = 2, sticky = "nw")
+
+    def __intialize_scan_gui(self):
+        self.scan_frame = scan_control.scan_frame.scan_frame(self.root,
+                borderwidth = 3, relief = tk.RIDGE)
+        self.scan_frame.grid(row = 0, column = 3, sticky = "ne")
 
     def __close_safely(self):
         if messagebox.askokcancel("Quit", "Are you sure you want to quit?"):

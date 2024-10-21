@@ -7,19 +7,21 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class plot_frame(tk.Frame):
-    def __init__(self, parent, refresh_rate, *args, **kwargs):
+    def __init__(self, parent, refresh_rate, table_frame, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
         self.canvas = FigureCanvasTkAgg(plt.gcf(), master = self)
         self.canvas.get_tk_widget().pack(fill = 'both', expand = True)
 
         self.refresh_rate = refresh_rate
+        
         self.buffersize = 200
 
         self.ani = None
         self.data = []
         self.colors = ["red", "orange", "yellow", "green", "blue", "indigo", "violet", "brown", "white", "pink", "aqua", "xkcd:seafoam green"]
         
+        self.table_frame = table_frame
 
         self.__init_animation(refresh_rate)
 
@@ -37,7 +39,6 @@ class plot_frame(tk.Frame):
         max = arr.max()
 
         x = np.linspace(0, len(self.data), num = len(self.data))
-
 
         ax = plt.gca()
         ax.cla()
@@ -63,3 +64,5 @@ class plot_frame(tk.Frame):
 
         if(len(self.data) > self.buffersize):
             del self.data[0]
+
+        self.table_frame.update_table(self.data)

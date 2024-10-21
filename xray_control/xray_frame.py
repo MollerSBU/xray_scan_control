@@ -87,9 +87,9 @@ class xray_frame(tk.Frame):
         self.current_values["mA"] = (self.current_values["mA"] * 6000 / 4096) / 1000
         self.current_values["fA"] = (self.current_values["fA"] * 1000 / 4096) / 100
 
-        self.current_hv.config(text = "{} kV".format(round(self.current_values["kV"], 2)))
-        self.current_current.config(text = "{} mA".format(round(self.current_values["mA"], 3)))
-        self.current_filament.config(text = "{} fA".format(round(self.current_values["fA"], 2)))
+        self.current_hv.config(text = "{:.2f} kV".format(round(self.current_values["kV"], 2)))
+        self.current_current.config(text = "{:.3f} mA".format(round(self.current_values["mA"], 3)))
+        self.current_filament.config(text = "{:.2f} fA".format(round(self.current_values["fA"], 2)))
 
         # HV = 0 if off, interlock = 0 if closed, faults = 0 if there are none
 
