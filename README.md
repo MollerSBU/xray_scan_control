@@ -14,6 +14,7 @@ python3 main_control.py
 --If gas is off
 --count number of sparks?
 --motor stopped
+- Add button to clear current plot
 
 ## Todos (long term)
 

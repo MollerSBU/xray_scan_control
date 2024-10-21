@@ -57,7 +57,7 @@ class scan_frame(tk.Frame):
             if inp is None:
                 return
 
-        self.status.config(text = "Status: Voltage Scan Running")
+        #self.status.config(text = "Status: Voltage Scan Running")
         
         thread = Thread(target = run_scan, args = (inp, self.directory))
         thread.start()
