@@ -25,6 +25,27 @@ class plot_frame(tk.Frame):
 
         self.__init_animation(refresh_rate)
 
+
+    # buttons work better with grid...
+    # make seperate frame to contain entries/buttons/etc
+
+    def __initialize_widgets(self):
+        self.button_frame = tk.Frame(self)
+
+        self.buffer_entry = tk.Entry(self.button_frame)
+        tk.Label(self.button_frame, text = "Buffer Size: ").grid(row = 0, column = 0)
+        tk.Button(self.button_frame, text = "Confirm", command = self.__confirm_buffersize).grid(row = 0, column = 2)
+        tk.Button(self.button_frame, text = "Clear plot", command = self.__clear_data).grid(row = 1, column = 0)
+        self.buffer_entry.grid(row = 0, column = 1)
+        
+        self.button_frame.pack(side = tk.LEFT)
+
+    def __confirm_buffersize(self):
+        self.buffersize = self.buffer_entry.get()
+
+    def __clear_data(self):
+        del self.data[:-1]
+
     def __init_animation(self, refresh_rate):
         self.fig = plt.gcf()
         self.fig.set_size_inches(15, 6)
@@ -63,6 +84,6 @@ class plot_frame(tk.Frame):
         self.data.append(dat)
 
         if(len(self.data) > self.buffersize):
-            del self.data[0]
+            del self.data[0:self.buffersize - len(self.data)]
 
         self.table_frame.update_table(self.data)

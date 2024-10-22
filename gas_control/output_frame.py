@@ -84,6 +84,8 @@ class output_frame(tk.Frame):
                                            font=("tkDefaultFont", 15)))
                 column[j].grid(row = j+1, column = i+1)
             self.flow_labels.append(column)
+        self.set_mfcs_to_zero = tk.BooleanVar()
+        tk.Checkbutton(self, text = "Set MFC's to 0 on closing ?", variable = self.set_mfcs_to_zero, onvalue = True, offvalue = False).grid(row = N_rows + 1, column = 0)
 
     # main refresher loop, every refresh rate, it check if new values have been entered,
     # if so: change them
@@ -182,9 +184,10 @@ class output_frame(tk.Frame):
     # behavior upon closing window
     # set both mfcs to 0 flow and then destroy root
     def on_closing(self):
-        self.__clear_warnings()
-        for i in range(2):
-            self.__closing_wrapper(i)
+        if self.set_mfcs_to_zero:
+            self.__clear_warnings()
+            for i in range(2):
+                self.__closing_wrapper(i)
             
     def __closing_wrapper(self, n_mfc):
         threading.Thread(target = async_wrapper_set, args = (self.mfc[n_mfc], 0)).start()
