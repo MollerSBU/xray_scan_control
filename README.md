@@ -48,7 +48,7 @@ This frame is rarely used. Sometimes if the motor has not been used in a while o
 
 1. The motor is unresponsive and doesnt move when given position and command
 
-        First just make sure that you arent trying to move it to somewhere it already is. If it's not try moving the motor manually using the buttons on the controller. It is also possible for the usb ports of the gas controllers and motor to get mixed up. I plan to fix this.
+        First just make sure that you arent trying to move it to somewhere it already is. If it's not, try moving the motor manually using the buttons on the controller. It is also possible for the usb ports of the gas controllers and motor to get mixed up. I plan to fix this.
 
 ## Scan Frame
 
