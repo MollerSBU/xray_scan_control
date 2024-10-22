@@ -46,6 +46,10 @@ class input_frame(tk.Frame):
         self.warning_message = tk.Label(self, text = "No Warnings", width = 30, fg = 'black', bg = 'white')
         self.warning_message.grid(row = 3, column = 0)
 
+        self.set_mfcs_to_zero = tk.BooleanVar(self, True)
+        tk.Checkbutton(self, text = "Zero MFC on close?", variable = self.set_mfcs_to_zero, onvalue = True, offvalue = False).grid(row = 3, column = 2)
+
+
     # reads in the flow rate and argon ratio from user
     # goodness checking is done here
         

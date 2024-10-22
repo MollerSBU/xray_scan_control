@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
@@ -14,7 +15,7 @@ class plot_frame(tk.Frame):
         self.canvas.get_tk_widget().pack(fill = 'both', expand = True)
 
         self.refresh_rate = refresh_rate
-        
+
         self.buffersize = 200
 
         self.ani = None
@@ -24,7 +25,7 @@ class plot_frame(tk.Frame):
         self.table_frame = table_frame
 
         self.__init_animation(refresh_rate)
-
+        self.__initialize_widgets()
 
     # buttons work better with grid...
     # make seperate frame to contain entries/buttons/etc
@@ -32,16 +33,19 @@ class plot_frame(tk.Frame):
     def __initialize_widgets(self):
         self.button_frame = tk.Frame(self)
 
-        self.buffer_entry = tk.Entry(self.button_frame)
+        self.buffer_entry = tk.Entry(self.button_frame, width = 10)
         tk.Label(self.button_frame, text = "Buffer Size: ").grid(row = 0, column = 0)
         tk.Button(self.button_frame, text = "Confirm", command = self.__confirm_buffersize).grid(row = 0, column = 2)
-        tk.Button(self.button_frame, text = "Clear plot", command = self.__clear_data).grid(row = 1, column = 0)
+        tk.Button(self.button_frame, text = "Clear plot", command = self.__clear_data).grid(row = 0, column = 3)
         self.buffer_entry.grid(row = 0, column = 1)
         
-        self.button_frame.pack(side = tk.LEFT)
+        self.button_frame.pack(side = tk.LEFT, expand = "y")
 
     def __confirm_buffersize(self):
-        self.buffersize = self.buffer_entry.get()
+        try:
+            self.buffersize = int(self.buffer_entry.get())
+        except:
+            messagebox.showerror(title = "Error", message = "Please enter an integer as buffersize")
 
     def __clear_data(self):
         del self.data[:-1]
@@ -84,6 +88,6 @@ class plot_frame(tk.Frame):
         self.data.append(dat)
 
         if(len(self.data) > self.buffersize):
-            del self.data[0:self.buffersize - len(self.data)]
+            del self.data[0:len(self.data) - self.buffersize]
 
         self.table_frame.update_table(self.data)

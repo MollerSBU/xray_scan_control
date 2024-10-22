@@ -70,10 +70,11 @@ class output_frame(tk.Frame):
     def __initialize_widgets(self):
         N_mfc = 2
         N_rows = len(self.row_labels)
-        tk.Label(self, text = "MFC 1", width = 8, font=("tkDefaultFont", 15)).grid(row = 0, column = 1)
-        tk.Label(self, text = "MFC 2", width = 8, font=("tkDefaultFont", 15)).grid(row = 0, column = 2)
+        tk.Label(self, text = "Gas Control").grid(row = 0, column = 0)
+        tk.Label(self, text = "MFC 1", width = 8, font=("tkDefaultFont", 15)).grid(row = 1, column = 1)
+        tk.Label(self, text = "MFC 2", width = 8, font=("tkDefaultFont", 15)).grid(row = 1, column = 2)
         for i in range(N_rows):
-            tk.Label(self, text = self.row_labels[i], width = 15, font=("tkDefaultFont", 15)).grid(row = i+1, column = 0)
+            tk.Label(self, text = self.row_labels[i], width = 15, font=("tkDefaultFont", 15)).grid(row = i+2, column = 0)
         for i in range(N_mfc):
             column = []
             for j in range(N_rows):
@@ -82,10 +83,8 @@ class output_frame(tk.Frame):
                                            relief="solid", 
                                            width = 7,
                                            font=("tkDefaultFont", 15)))
-                column[j].grid(row = j+1, column = i+1)
+                column[j].grid(row = j+2, column = i+1)
             self.flow_labels.append(column)
-        self.set_mfcs_to_zero = tk.BooleanVar()
-        tk.Checkbutton(self, text = "Set MFC's to 0 on closing ?", variable = self.set_mfcs_to_zero, onvalue = True, offvalue = False).grid(row = N_rows + 1, column = 0)
 
     # main refresher loop, every refresh rate, it check if new values have been entered,
     # if so: change them
@@ -174,20 +173,19 @@ class output_frame(tk.Frame):
             label.configure(background=fg, foreground=bg)
             self.configure(background = fg)
 
-    def __clear_warnings(self):
-        self.configure(background = "#d9d9d9")
-        self.in_frame.warning_message.config(text = "No Warnings", fg = 'black', bg = 'white')
-        self.warning_enabled = False
-        self.warning_counter = 0
-
-
     # behavior upon closing window
     # set both mfcs to 0 flow and then destroy root
     def on_closing(self):
-        if self.set_mfcs_to_zero:
+        if self.in_frame.set_mfcs_to_zero:
             self.__clear_warnings()
             for i in range(2):
                 self.__closing_wrapper(i)
             
     def __closing_wrapper(self, n_mfc):
         threading.Thread(target = async_wrapper_set, args = (self.mfc[n_mfc], 0)).start()
+
+    def __clear_warnings(self):
+        self.configure(background = "#d9d9d9")
+        self.in_frame.warning_message.config(text = "No Warnings", fg = 'black', bg = 'white')
+        self.warning_enabled = False
+        self.warning_counter = 0
