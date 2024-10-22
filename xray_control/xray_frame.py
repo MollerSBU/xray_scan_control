@@ -24,7 +24,7 @@ class xray_frame(tk.Frame):
         tk.Button(self, text = "X-Rays: HV On", command = self.__hv_on, height = 3).grid(row = 2, column = 0, rowspan = 2, padx = 3, pady = 3)
         tk.Button(self, text = "X-Rays: HV Off", command = self.__hv_off, width = 20).grid(row = 4, column = 0, columnspan = 3, padx = 3, pady = 3)
         self.set_voltage = tk.Entry(self, width = 10)
-        self.set_voltage.insert(tk.END, "8")
+        self.set_voltage.insert(tk.END, "15")
         self.set_current = tk.Entry(self, width = 10)
         self.set_current.insert(tk.END, "0.02")
         tk.Label(self, text = "kV").grid(row = 2, column = 2, padx = 3, pady = 3)
