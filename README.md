@@ -56,16 +56,11 @@ This frame is rarely used. Sometimes if the motor has not been used in a while o
 
 ## Todos (short term) (in relative order of importance)
 
-- Functionality for running scans
--- both position and voltage dependent
 - Add more error functionality (all should give pop-ups)
 --If gas is off
 --count number of sparks?
---motor stopped
 - Finish this readme
-- Automatically check and assign USB ports
 
 ## Todos (long term)
 
-- Dynamic plotting of gain data
 - Integrate CAEN HV wrapper into error functionality

@@ -1,23 +1,34 @@
 import ROOT
 import csv
 import numpy as np
-import sys
 import os
+import subprocess
 
 # reads in data for 1 given file
 def cleanFile(directory, fname, nPoints):
     pos = []
     data = []
 
+    # when reading in files real time, we dont want points that havent finished taking data
+    # only way to do this is to count lines, and break if we get too close 
+    # faster to just run wc than to read file, count lines, then read it again
+    lc = subprocess.run("wc -l {}/{}".format(directory, fname), 
+                      shell=True, stdout = subprocess.PIPE)
+    
+    # example output is b'656 2024-11-05_20:45\n'
+    n_lines = int(str(lc.stdout).strip("\'b\\n").split()[0])
+
     # opens and reads in data files (few thousand lines each)
-    with open("{0}{1}".format(directory, fname), "r+") as f:
+    with open("{0}/{1}".format(directory, fname), "r+") as f:
         reader = csv.reader(f)
         i = 0
         for row in reader:
             if row == "/n":
                 continue
-            # 100 data points and then 1 position information
+            # 101 data points and then 1 position information
             # if its a position row, add to position, otherwise add to data
+            if np.abs(i - n_lines) < nPoints and i%(nPoints+1)==0:
+                break
             if i%(nPoints+1)==0:
                 pos.append(row)
             else:
@@ -47,25 +58,37 @@ def stripPos(rawPos):
     positions = np.array(positions).astype(int)
     return positions
 
-def generate_plot(fnames):
+def generate_plot(directory, fname):
 
-    pos = np.empty((0, 2))
-    averaged = np.empty(0)
-    sigma = np.empty(0)
-    for file in fnames:
-        pos_fin, averaged_fin, sigma_fin = cleanFile("data/", file, 101)
-        pos_fin = stripPos(pos_fin)
-        pos = np.concatenate((pos, pos_fin))
-        averaged = np.concatenate((averaged, averaged_fin))
-        sigma = np.concatenate((sigma, sigma_fin))
+    ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
+    # fnames = os.listdir(directory)
+
+    # pos = np.empty((0, 2))
+    # averaged = np.empty(0)
+    # sigma = np.empty(0)
+    # for file in fnames:
+    #     pos_fin, averaged_fin, sigma_fin = cleanFile(directory, file, 101)
+    #     pos_fin = stripPos(pos_fin)
+    #     pos = np.concatenate((pos, pos_fin))
+    #     averaged = np.concatenate((averaged, averaged_fin))
+    #     sigma = np.concatenate((sigma, sigma_fin))
+
+    pos, averaged, sigma = cleanFile(directory, fname, 101)
+    pos = stripPos(pos)
+    #pos = np.array(pos)
+    averaged = np.array(averaged)
+
+    print(pos)
+    print(averaged)
 
     # pos is default in "motor" coordinates 2000 steps = 1 cm
     pos = pos/2000
     averaged = averaged * -1
 
-    print(averaged)
-
+    # TH2D *Pos_hist = new TH2D("pos_hist", "", 51, 0, 51, 51, 0, 51)
     pos_hist = ROOT.TH2D("pos_hist", "", 51, 0, 51, 51, 0, 51)
+
     for i in range(len(pos)):
         binx, biny = pos_hist.GetXaxis().FindBin(pos[i][0]), pos_hist.GetYaxis().FindBin(pos[i][1])
         bin = pos_hist.GetBin(binx, biny, 0)
@@ -77,7 +100,7 @@ def generate_plot(fnames):
 
     l, r, t, b = 0.05, 0.05, 0.05, 0.05
 
-    canvas = ROOT.TCanvas("c1", "c1", 1500, 5000)
+    canvas = ROOT.TCanvas("c1", "c1", 1500, 1500)
 
     pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1.0, 1.0)
     pad2 = ROOT.TPad("pad2", "pad2", 0, 0.0, 1.0, 0.3)
@@ -101,7 +124,7 @@ def generate_plot(fnames):
     pad2.cd()
     current_hist.Draw()
 
-    canvas.SaveAs("plots/test.png")
+    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test.png")
 
 
 if __name__ == "__main__":

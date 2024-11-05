@@ -4,39 +4,65 @@ from tkinter import messagebox, simpledialog
 import os
 from threading import Thread
 import time
+from .generate_plot import generate_plot
 
 
 def run_voltage_scan(voltage, directory):
     subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/gainScan.sh {} {}".format(voltage, directory), 
                        shell=True, stdout = subprocess.PIPE)
 
-def run_position_scan(directory):
-    name = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
-    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {}".format(name, directory), 
-                       shell=True, stdout = subprocess.PIPE)
+def run_position_scan(fname, directory):
+    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {} {}".format(fname, directory), 
+                      shell=True, stdout = subprocess.PIPE)
+
+def plot(directory, fname):
+    generate_plot(directory, fname)
+
 
 class scan_frame(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, refresh_rate, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.__directory = None
+        self.__position_fname = None
+        self.__refresh_rate = refresh_rate
+        self.__position_scan_running  = False
         self.__initialize_widgets()
+        self.__main_refresher()
+
+
+    def __main_refresher(self):
+        if self.__position_scan_running and os.path.exists("{}/{}".format(self.__directory, self.__position_fname)):
+            get_plot = True
+            last_write = os.path.getmtime("{}/{}".format(self.__directory, self.__position_fname))
+            time_since_last_write = time.time() - last_write
+            if time_since_last_write > 60:
+                if messagebox.askokcancel(title = "ERROR", message = "Scan file hasn't updated in more than 60 seconds, please check if motor is still running. Press 'OK' if everything is fine, and 'CANCEL' if not."):
+                    pass
+                else:
+                    self.__position_scan_running = False
+                    get_plot = False
+            if get_plot:
+                print(self.__directory)
+                thread = Thread(target = plot, args = (self.__directory, self.__position_fname))
+                thread.start()
+        self.after(self.__refresh_rate, self.__main_refresher)
 
     def __initialize_widgets(self):
         tk.Label(self, text = "Scan control").grid(row = 0, column = 0)
         tk.Label(self, text = "Directory:").grid(row = 1, column = 0)
-        self.directory_name = tk.Entry(self)
-        self.directory_name.grid(row = 1, column = 1)
+        self.__directory_name = tk.Entry(self)
+        self.__directory_name.grid(row = 1, column = 1)
         tk.Button(self, text = "Confirm", command = self.__check_directory).grid(row = 1, column = 2)
         #self.status = tk.Label(self, text = "Status: Unknown")
         #self.status.grid(row = 2, column = 0)
-        self.directory = None
 
         run_select = {"voltage": "voltage", "position": "position"}
-        self.run_type = tk.StringVar(self, "voltage")
+        self.__run_type = tk.StringVar(self, "voltage")
 
         i = 0
         for (text, value) in run_select.items():
             tk.Radiobutton(self, text = text,
-                            variable = self.run_type,
+                            variable = self.__run_type,
                             value = value).grid(row = 2, column = i)
             i += 1
 
@@ -44,9 +70,9 @@ class scan_frame(tk.Frame):
 
     def __confirm_run(self):
         if messagebox.askokcancel("Begin Scan", "About to begin scan, are you sure?"):
-            if self.run_type.get() == "voltage":
+            if self.__run_type.get() == "voltage":
                 self.__run_voltage_scan()
-            elif self.run_type.get() == "position":
+            elif self.__run_type.get() == "position":
                 self.__run_position_scan()
 
     def __run_voltage_scan(self):
@@ -60,25 +86,24 @@ class scan_frame(tk.Frame):
                         prompt = "Enter intended voltage")
             if inp is None:
                 return
-
-        #self.status.config(text = "Status: Voltage Scan Running")
         
-        thread = Thread(target = run_voltage_scan, args = (inp, self.directory))
+        thread = Thread(target = run_voltage_scan, args = (inp, self.__directory))
         thread.start()
 
     def __run_position_scan(self):
         if not self.__valid_directory():
             return
         if not messagebox.askokcancel(title = "Confirm",
-                message = "Are you sure you want to initiate a position scan?"):
+                message = "Are you sure you want to initiate a position scan? It cannot be easily stopped once started."):
             return
-        messagebox.showwarning(title = "Not Implemented",
-            message = "Position scan is not yet implemented")
-        thread = Thread(target = run_position_scan, args = (self.directory))
+        self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
+        self.__position_scan_running = True
+        thread = Thread(target = run_position_scan, args = (self.__position_fname, self.__directory))
+        thread.start()
         
 
     def __check_directory(self):
-        dirname = self.directory_name.get()
+        dirname = self.__directory_name.get()
         if any(not char.isalnum() for char in dirname):
             messagebox.showerror(title = "Invalid Directory", 
                 message = "Invalid directory, please use only letters and numbers")
@@ -86,10 +111,10 @@ class scan_frame(tk.Frame):
         if not os.path.isdir("/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname)):
             os.mkdir("/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname))
 
-        self.directory = "/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname)
+        self.__directory = "/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname)
 
     def __valid_directory(self):
-        if self.directory is None:
+        if self.__directory is None:
             messagebox.showerror(title = "Directory Error",
                     message = "Please enter a directory first")
             return False

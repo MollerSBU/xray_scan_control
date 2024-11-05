@@ -53,7 +53,7 @@ class plot_frame(tk.Frame):
     def __init_animation(self, refresh_rate):
         self.fig = plt.gcf()
         self.fig.set_size_inches(15, 6)
-        self.ani = FuncAnimation(self.fig, self.__animate, interval=refresh_rate, blit=False)
+        self.ani = FuncAnimation(self.fig, self.__animate, interval=refresh_rate, blit=False, cache_frame_data= False)
 
     def __animate(self, i):
         self.__get_data()

@@ -1,3 +1,6 @@
+# exclude python bytecode
 __pycache__/
+# exclude data
 scans/
-plot_tkinter.py
+# exclude directory containing temp plots 
+.tmp/

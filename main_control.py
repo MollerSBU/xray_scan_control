@@ -6,7 +6,7 @@ import motor_control.motor_frame
 import scan_control.scan_frame
 from tkinter import messagebox
 import os
-#
+
 
 class main_frame:
     def __init__(self, parent):
@@ -51,7 +51,7 @@ class main_frame:
 
     def __intialize_scan_gui(self):
         self.scan_frame = scan_control.scan_frame.scan_frame(self.root,
-                borderwidth = 3, relief = tk.RIDGE)
+                refresh_rate = 10000, borderwidth = 3, relief = tk.RIDGE)
         self.scan_frame.grid(row = 0, column = 3, sticky = "ne")
 
     def __close_safely(self):

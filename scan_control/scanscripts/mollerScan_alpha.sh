@@ -24,9 +24,8 @@ THRAD=`echo "${TH}*3.1415926/180.0" | bc -l`
 STEP_SIZE=2000
 
 #y loop (change to 0)
-for i in $( eval echo {78000..100000..$STEP_SIZE} )
+for i in $( eval echo {0..2000..$STEP_SIZE} )
 do
-    echo $i
     sleep 1
     echo "C,IA1M${i},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE
     DX=`echo "(${YTH}-${i})*(s(${THRAD})/c(${THRAD}))" | bc -l`
@@ -39,13 +38,14 @@ do
 
     if (((i % $((2*$STEP_SIZE))) == 0))
     then
-        for j in $( eval echo {$max..$min..$STEP_SIZE} )
+        #for j in $( eval echo {$max..$min..$STEP_SIZE} )
+        for j in $( eval echo {$min..$max..10000} )
         do
             sleep 0.1
             # # move xray to current value of "j" in x direction
             echo "C,IA3M${j},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE
             # # print position to output file
-            bash readMotor.sh >> ${fout}
+            bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/readMotor.sh >> ${fout}
             # # take some number of samples at each location
             for k in {0..100..1}
             do
@@ -54,14 +54,15 @@ do
             done
         done
      else
-        for j in $( eval echo {$min..$max..$STEP_SIZE} )
+        #for j in $( eval echo {$min..$max..$STEP_SIZE} )
+        for j in $( eval echo {$max..$min..10000} )
         do
             sleep 0.1
             echo $j
             # # move xray to current value of "j" in x direction
             echo "C,IA3M${j},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE
             # # print position to output file
-            bash readMotor.sh >> ${fout}
+            bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/readMotor.sh >> ${fout}
             # # take some number of samples at each location
             for k in {0..100..1}
             do
@@ -72,4 +73,4 @@ do
     fi
 done
 
-bash /home/mollergem/Products/MasterControlMoller/xray/xRayGun_OFF.sh
+# bash /home/mollergem/Products/MasterControlMoller/xray/xRayGun_OFF.sh
