@@ -5,7 +5,7 @@ import pa_control.pa_frame
 import motor_control.motor_frame
 import scan_control.scan_frame
 from tkinter import messagebox
-
+import os
 #
 
 class main_frame:
@@ -20,8 +20,14 @@ class main_frame:
 
         self.root.protocol("WM_DELETE_WINDOW", self.__close_safely)
 
+
+
     def __initialize_mfc_gui(self):
-        addresses = ["/dev/ttyUSB1", "/dev/ttyUSB0"]
+        # /dev/serial/by-id contains serial devices listed with their unique ID
+        # these have symlinks to the appropriate USB device
+        # as long as cables are never swapped this should remain fine.
+        addresses = ["/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_AU05T0I2-if00-port0", "/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_AU05STIP-if00-port0"]
+        addresses = [os.path.realpath(x) for x in addresses]
         self.gas_frame = gas_control.mfc_gui_async.mfc_GUI(self.root, 
                 addresses, refresh_rate = 500, borderwidth=3, relief=tk.RIDGE)
         #self.gas_frame.pack(fill='both', side = tk.RIGHT, expand = True)

@@ -3,10 +3,16 @@ import subprocess
 from tkinter import messagebox, simpledialog
 import os
 from threading import Thread
+import time
 
 
-def run_scan(voltage, directory):
+def run_voltage_scan(voltage, directory):
     subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/gainScan.sh {} {}".format(voltage, directory), 
+                       shell=True, stdout = subprocess.PIPE)
+
+def run_position_scan(directory):
+    name = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
+    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {}".format(name, directory), 
                        shell=True, stdout = subprocess.PIPE)
 
 class scan_frame(tk.Frame):
@@ -44,27 +50,32 @@ class scan_frame(tk.Frame):
                 self.__run_position_scan()
 
     def __run_voltage_scan(self):
-        if self.directory is None:
-            messagebox.showerror(title = "Directory Error",
-                    message = "Please enter a directory first")
+        if not self.__valid_directory():
             return
         inp = simpledialog.askinteger(title = "Voltage",
                     prompt = "Enter intended voltage")
         while not messagebox.askokcancel(title = "Confirm", 
                 message = "You have entered {}, confirm?".format(inp)):
-            inp = inp = simpledialog.askinteger(title = "Voltage",
+            inp = simpledialog.askinteger(title = "Voltage",
                         prompt = "Enter intended voltage")
             if inp is None:
                 return
 
         #self.status.config(text = "Status: Voltage Scan Running")
         
-        thread = Thread(target = run_scan, args = (inp, self.directory))
+        thread = Thread(target = run_voltage_scan, args = (inp, self.directory))
         thread.start()
 
     def __run_position_scan(self):
+        if not self.__valid_directory():
+            return
+        if not messagebox.askokcancel(title = "Confirm",
+                message = "Are you sure you want to initiate a position scan?"):
+            return
         messagebox.showwarning(title = "Not Implemented",
             message = "Position scan is not yet implemented")
+        thread = Thread(target = run_position_scan, args = (self.directory))
+        
 
     def __check_directory(self):
         dirname = self.directory_name.get()
@@ -76,3 +87,10 @@ class scan_frame(tk.Frame):
             os.mkdir("/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname))
 
         self.directory = "/home/mollergem/MOLLER_xray_gui/scans/{}".format(dirname)
+
+    def __valid_directory(self):
+        if self.directory is None:
+            messagebox.showerror(title = "Directory Error",
+                    message = "Please enter a directory first")
+            return False
+        return True

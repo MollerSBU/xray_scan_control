@@ -7,7 +7,7 @@
 #
 #
 
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/ttyUSB2
+[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
 
 MOTOR=$2
 

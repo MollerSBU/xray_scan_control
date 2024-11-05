@@ -8,7 +8,7 @@ bash newmotorinit.sh
 touch $fout
 
 # set up the serialline to talk tot he motors
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/ttyUSB0
+[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
 
 #for i in {0..10000..5000}
 echo "starting new run"

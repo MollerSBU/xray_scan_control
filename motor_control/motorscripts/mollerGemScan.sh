@@ -10,7 +10,7 @@ printf "quickScan ${start}\n" > $fout
 bash newmotorinit.sh
 
 # set up the serialline to talk tot he motors
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/ttyUSB0
+[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
 
 MODULE=$2
 echo "Module = ${MODULE}"

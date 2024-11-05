@@ -1,17 +1,18 @@
 #! /bin/bash
 
+NAME=$1
+DIRECTORY=$2
 
-start=`date +%y%m%d-%T`
-fout=./scans/${start}
+fout=$DIRECTORY/$NAME
 
 # The scan might be trash if the starting point is misaligned.
 # To avoid this issue we re-initialize the coordinates for EVERY scan...
-bash newmotorinit.sh
+bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh
 
 touch $fout
 
 #set up the serialline to talk tot he motors
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/ttyUSB0
+[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
 
 
 echo "starting new run"

@@ -32,7 +32,7 @@ while getopts ":xyzXYZ:" option; do
 done
 
 SERIALLINE=$2
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/ttyUSB0
+[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
 
 #echo "You selected motor ${MOTOR}"
 #echo "You selected port ${SERIALLINE}"
