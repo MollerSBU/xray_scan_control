@@ -61,6 +61,8 @@ def stripPos(rawPos):
 def generate_plot(directory, fname):
 
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
+    global gErrorIgnoreLevel
+    gErrorIgnoreLevel = 0
 
     # fnames = os.listdir(directory)
 
@@ -78,9 +80,6 @@ def generate_plot(directory, fname):
     pos = stripPos(pos)
     #pos = np.array(pos)
     averaged = np.array(averaged)
-
-    print(pos)
-    print(averaged)
 
     # pos is default in "motor" coordinates 2000 steps = 1 cm
     pos = pos/2000
@@ -100,7 +99,7 @@ def generate_plot(directory, fname):
 
     l, r, t, b = 0.05, 0.05, 0.05, 0.05
 
-    canvas = ROOT.TCanvas("c1", "c1", 1500, 1500)
+    canvas = ROOT.TCanvas("c1", "c1", 500, 500)
 
     pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1.0, 1.0)
     pad2 = ROOT.TPad("pad2", "pad2", 0, 0.0, 1.0, 0.3)
@@ -124,7 +123,7 @@ def generate_plot(directory, fname):
     pad2.cd()
     current_hist.Draw()
 
-    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test.png")
+    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test.gif")
 
 
 if __name__ == "__main__":

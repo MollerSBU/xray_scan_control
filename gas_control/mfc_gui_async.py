@@ -20,10 +20,3 @@ class mfc_GUI(tk.Frame):
 
         self.out_frame = output_frame(self, address, in_frame, refresh_rate)
         self.out_frame.pack(fill='both', side = tk.TOP, expand = True)
-
-
-
-if __name__ == '__main__':
-    root = tk.Tk()
-    gui = mfc_GUI(root, ["/dev/ttyUSB1", "/dev/ttyUSB0"], 500)
-    root.mainloop()

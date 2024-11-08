@@ -3,7 +3,7 @@ import threading
 import queue
 import alicat
 import asyncio
-from tkinter import messagebox
+import time
 
 '''
 This is the output frame
@@ -42,6 +42,8 @@ class output_frame(tk.Frame):
         self.addresses = addresses
         self.in_frame = in_frame
         self.refresh_rate = refresh_rate
+
+        self.threads = []
 
 
         # initializes variables
@@ -91,6 +93,7 @@ class output_frame(tk.Frame):
     # if not: get values from mfcs
     # then do it again refresh_rate ms
     def __main_refresher(self):
+        self.__check_threads()
         if self.in_frame.flag_new_setpoint:
             self.__set_values()
         else:
@@ -100,6 +103,12 @@ class output_frame(tk.Frame):
             self.__open_thread_get(0)
             self.__open_thread_get(1)
         self.root.after(self.refresh_rate, self.__main_refresher)
+
+    def __check_threads(self):
+        thread_handled = []
+        for thread in self.threads:
+            thread_handled.append(not thread.is_alive)
+        self.threads = [thread for thread in self.threads if thread_handled[self.threads.index(thread)]]
 
     # intializes the MFC based on USB address
     async def __init__mfc(self, address, n_mfc):
@@ -114,8 +123,10 @@ class output_frame(tk.Frame):
         self.in_frame.warning_message.configure(text = "WARNING: FLOW RATE \n DEVIATES FROM SET BY > 5%\n {} CYCLES UNTIL SHUTOFF".format(60 - self.warning_counter))
         # set argon flow to 0 if warning persists for 60 cycles of refresh rate (default is 2 Hz)
         if self.warning_counter >= 60:
-            threading.Thread(target = async_wrapper_set, args = (self.mfc[0], 0)).start()
-            threading.Thread(target = async_wrapper_set, args = (self.mfc[1], 0)).start()
+            self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], 0)))
+            self.threads[-1].start()
+            self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[1], 0)))
+            self.threads[-1].start()
             self.Ar_rate, self.CO2_rate = 0, 0
             self.__clear_warnings()
             self.in_frame.warning_message.configure(text = "GAS WAS SHUTOFF\nRATIO DEVIATED > 5%\n FOR > 60 CYCLES")
@@ -124,7 +135,8 @@ class output_frame(tk.Frame):
     # opens a new queue which is passed to the new thread so that values may be passed between threads 
     def __open_thread_get(self, n_mfc):
         self.queue[n_mfc] = queue.Queue()
-        threading.Thread(target = async_wrapper_get, args = (self.mfc[n_mfc], self.queue[n_mfc])).start()
+        self.threads.append(threading.Thread(target = async_wrapper_get, args = (self.mfc[n_mfc], self.queue[n_mfc])))
+        self.threads[-1].start()
         self.root.after(100, self.__process_queue, n_mfc)
 
     # checks every 100 ms if something has been added to queue
@@ -149,8 +161,10 @@ class output_frame(tk.Frame):
         self.Ar_rate = ratio * total_rate
         self.CO2_rate = (1 - ratio)* total_rate
         self.in_frame.flag_new_setpoint = False
-        threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)).start()
-        threading.Thread(target = async_wrapper_set, args = (self.mfc[1], self.CO2_rate)).start()
+        self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)))
+        self.threads[-1].start()
+        self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[1], self.CO2_rate)))
+        self.threads[-1].start()
 
     def __check_rate(self):
         if self.out_dict[0] is not None and self.Ar_rate != 0 and self.CO2_rate != 0:
@@ -176,13 +190,19 @@ class output_frame(tk.Frame):
     # behavior upon closing window
     # set both mfcs to 0 flow and then destroy root
     def on_closing(self):
-        if self.in_frame.set_mfcs_to_zero:
+        while len(self.threads) != 0:
+            print("Waiting for {} threads to close".format(len(self.threads)))
+            self.__check_threads()
+            if len(self.threads) != 0:
+                time.sleep(1)
+        if self.in_frame.set_mfcs_to_zero.get():
             self.__clear_warnings()
             for i in range(2):
                 self.__closing_wrapper(i)
             
     def __closing_wrapper(self, n_mfc):
-        threading.Thread(target = async_wrapper_set, args = (self.mfc[n_mfc], 0)).start()
+        self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[n_mfc], 0)))
+        self.threads[-1].start()
 
     def __clear_warnings(self):
         self.configure(background = "#d9d9d9")

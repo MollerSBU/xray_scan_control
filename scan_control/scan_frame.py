@@ -2,7 +2,8 @@ import tkinter as tk
 import subprocess
 from tkinter import messagebox, simpledialog
 import os
-from threading import Thread
+import threading
+import multiprocessing
 import time
 from .generate_plot import generate_plot
 
@@ -26,6 +27,7 @@ class scan_frame(tk.Frame):
         self.__position_fname = None
         self.__refresh_rate = refresh_rate
         self.__position_scan_running  = False
+        self.plot_thread, self.position_scan_thread, self.voltage_scan_thread = None, None, None
         self.__initialize_widgets()
         self.__main_refresher()
 
@@ -42,9 +44,8 @@ class scan_frame(tk.Frame):
                     self.__position_scan_running = False
                     get_plot = False
             if get_plot:
-                print(self.__directory)
-                thread = Thread(target = plot, args = (self.__directory, self.__position_fname))
-                thread.start()
+                self.plot_thread = multiprocessing.Process(target = plot, args = (self.__directory, self.__position_fname))
+                self.plot_thread.start()
         self.after(self.__refresh_rate, self.__main_refresher)
 
     def __initialize_widgets(self):
@@ -87,8 +88,8 @@ class scan_frame(tk.Frame):
             if inp is None:
                 return
         
-        thread = Thread(target = run_voltage_scan, args = (inp, self.__directory))
-        thread.start()
+        self.voltage_scan_thread = multiprocessing.Process(target = run_voltage_scan, args = (inp, self.__directory))
+        self.voltage_scan_thread.start()
 
     def __run_position_scan(self):
         if not self.__valid_directory():
@@ -98,8 +99,8 @@ class scan_frame(tk.Frame):
             return
         self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
         self.__position_scan_running = True
-        thread = Thread(target = run_position_scan, args = (self.__position_fname, self.__directory))
-        thread.start()
+        self.position_scan_thread = multiprocessing.Process(target = run_position_scan, args = (self.__position_fname, self.__directory))
+        self.position_scan_thread.start()
         
 
     def __check_directory(self):
@@ -119,3 +120,11 @@ class scan_frame(tk.Frame):
                     message = "Please enter a directory first")
             return False
         return True
+    
+    def on_closing(self):
+        if self.plot_thread is not None:
+            self.plot_thread.terminate()
+        if self.position_scan_thread is not None:
+            self.position_scan_thread.terminate()
+        if self.voltage_scan_thread is not None:
+            self.voltage_scan_thread.terminate()

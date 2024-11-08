@@ -4,8 +4,10 @@ import xray_control.xray_frame
 import pa_control.pa_frame
 import motor_control.motor_frame
 import scan_control.scan_frame
+import scan_control.image_frame
 from tkinter import messagebox
 import os
+import sys
 
 
 class main_frame:
@@ -17,6 +19,7 @@ class main_frame:
         self.__initialize_pa_gui()
         self.__intialize_motor_gui()
         self.__intialize_scan_gui()
+        self.__intialize_image_gui()
 
         self.root.protocol("WM_DELETE_WINDOW", self.__close_safely)
 
@@ -51,13 +54,22 @@ class main_frame:
 
     def __intialize_scan_gui(self):
         self.scan_frame = scan_control.scan_frame.scan_frame(self.root,
-                refresh_rate = 10000, borderwidth = 3, relief = tk.RIDGE)
-        self.scan_frame.grid(row = 0, column = 3, sticky = "ne")
+                refresh_rate = 15000, borderwidth = 3, relief = tk.RIDGE)
+        self.scan_frame.grid(row = 0, column = 3, sticky = "nw")
+
+    def __intialize_image_gui(self):
+        self.image_frame = scan_control.image_frame.image_frame(self.root,
+                refresh_rate = 15000, borderwidth = 3, relief = tk.RIDGE)
+        self.image_frame.grid(row = 1, column = 3, sticky = "sw")
 
     def __close_safely(self):
         if messagebox.askokcancel("Quit", "Are you sure you want to quit?"):
+            # may need to turn gas off when frame is turned off
+            # also, both of these frames use multithreading 
             self.gas_frame.out_frame.on_closing()
-            self.root.destroy()
+            self.scan_frame.on_closing()
+            #self.root.destroy()
+            sys.exit()
 
 if __name__ == '__main__':
     root = tk.Tk()
