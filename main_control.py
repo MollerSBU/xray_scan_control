@@ -15,11 +15,11 @@ class main_frame:
         self.root = parent
         
         self.__initialize_mfc_gui()
-        self.__iniitialize_xray_gui()
+        self.__initialize_xray_gui()
         self.__initialize_pa_gui()
-        self.__intialize_motor_gui()
-        self.__intialize_scan_gui()
-        self.__intialize_image_gui()
+        self.__initialize_motor_gui()
+        self.__initialize_scan_gui()
+        self.__initialize_image_gui()
 
         self.root.protocol("WM_DELETE_WINDOW", self.__close_safely)
 
@@ -35,7 +35,7 @@ class main_frame:
                 addresses, refresh_rate = 500, borderwidth=3, relief=tk.RIDGE)
         #self.gas_frame.pack(fill='both', side = tk.RIGHT, expand = True)
         self.gas_frame.grid(row = 0, column = 1, stick = "nsw")
-    def __iniitialize_xray_gui(self):
+    def __initialize_xray_gui(self):
         self.xray_frame = xray_control.xray_frame.xray_frame(self.root, 
                 refresh_rate = 500, borderwidth=3, relief=tk.RIDGE)
         #self.xray_frame.pack(fill = 'both', side = tk.LEFT, expand = False)
@@ -43,21 +43,21 @@ class main_frame:
 
     def __initialize_pa_gui(self):
         self.pa_frame = pa_control.pa_frame.pa_frame(self.root, 
-                borderwidth = 3, relief = tk.RIDGE)
+                refresh_rate = 200, borderwidth = 3, relief = tk.RIDGE)
         #self.pa_frame.pack(fill='both', side = tk.BOTTOM, expand = True)
         self.pa_frame.grid(row = 1, column = 0, columnspan = 3, sticky = "sw")
 
-    def __intialize_motor_gui(self):
+    def __initialize_motor_gui(self):
         self.motor_frame = motor_control.motor_frame.motor_frame(self.root,
                 borderwidth = 3, relief = tk.RIDGE)
         self.motor_frame.grid(row = 0, column = 2, sticky = "nw")
 
-    def __intialize_scan_gui(self):
+    def __initialize_scan_gui(self):
         self.scan_frame = scan_control.scan_frame.scan_frame(self.root,
                 refresh_rate = 15000, borderwidth = 3, relief = tk.RIDGE)
         self.scan_frame.grid(row = 0, column = 3, sticky = "nw")
 
-    def __intialize_image_gui(self):
+    def __initialize_image_gui(self):
         self.image_frame = scan_control.image_frame.image_frame(self.root,
                 refresh_rate = 15000, borderwidth = 3, relief = tk.RIDGE)
         self.image_frame.grid(row = 1, column = 3, sticky = "sw")

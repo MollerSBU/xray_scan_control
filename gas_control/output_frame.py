@@ -105,10 +105,10 @@ class output_frame(tk.Frame):
         self.root.after(self.refresh_rate, self.__main_refresher)
 
     def __check_threads(self):
-        thread_handled = []
+        thread_alive = []
         for thread in self.threads:
-            thread_handled.append(not thread.is_alive)
-        self.threads = [thread for thread in self.threads if thread_handled[self.threads.index(thread)]]
+            thread_alive.append(thread.is_alive())
+        self.threads = [thread for thread in self.threads if thread_alive[self.threads.index(thread)]]
 
     # intializes the MFC based on USB address
     async def __init__mfc(self, address, n_mfc):
