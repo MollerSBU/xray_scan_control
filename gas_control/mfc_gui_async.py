@@ -6,7 +6,6 @@ from .output_frame import output_frame
 Handles all high level interaction with input/output frames
 
 Generates input/output frames
-Handles closing functionality
 Initializes run
 '''
 

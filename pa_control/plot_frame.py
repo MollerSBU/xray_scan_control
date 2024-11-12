@@ -6,6 +6,12 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+'''
+1. Gets data
+2. Calls to update table
+3. Handles plotting
+'''
+
 
 class plot_frame(tk.Frame):
     def __init__(self, parent, refresh_rate, table_frame, *args, **kwargs):
@@ -16,6 +22,7 @@ class plot_frame(tk.Frame):
 
         self.refresh_rate = refresh_rate
 
+        # default buffersize
         self.buffersize = 200
 
         self.ani = None
@@ -33,7 +40,7 @@ class plot_frame(tk.Frame):
     def __initialize_widgets(self):
         self.button_frame = tk.Frame(self)
 
-        self.buffer_entry = tk.Entry(self.button_frame, width = 10)
+        self.buffer_entry = tk.Entry(self.button_frame, text = "200", width = 10)
         tk.Label(self.button_frame, text = "Buffer Size: ").grid(row = 0, column = 0)
         tk.Button(self.button_frame, text = "Confirm", command = self.__confirm_buffersize).grid(row = 0, column = 2)
         tk.Button(self.button_frame, text = "Clear plot", command = self.__clear_data).grid(row = 0, column = 3)
@@ -55,8 +62,15 @@ class plot_frame(tk.Frame):
         self.fig.set_size_inches(15, 6)
         self.ani = FuncAnimation(self.fig, self.__animate, interval=refresh_rate, blit=False, cache_frame_data= False)
 
+    # main loop, refreshes using matplotlib ui instead of tkinter
+
     def __animate(self, i):
+        
+        # gets data
         self.__get_data()
+
+        # updates table
+        self.table_frame.update_table(self.data)
 
         arr = np.array(self.data)
         arr = arr.T
@@ -66,7 +80,9 @@ class plot_frame(tk.Frame):
         x = np.linspace(0, len(self.data), num = len(self.data))
 
         ax = plt.gca()
+        # clear previous axis
         ax.cla()
+        # beautification
         ax.set_ylim([min, max])
         ax.set_ylabel("Current (nA)")
         ax.set_xlabel("Arb units (time)")
@@ -77,9 +93,11 @@ class plot_frame(tk.Frame):
         ax.legend(loc="lower left")
 
     def __get_data(self):
+
+        # gets data from command line
         cmd = subprocess.run("echo currents | netcat -w 1 -t localhost 50001", 
-        shell = True, executable = "/bin/bash",
-        stdout = subprocess.PIPE, text=True)
+            shell = True, executable = "/bin/bash",
+            stdout = subprocess.PIPE, text=True)
     
         # clean data
         dat = cmd.stdout.strip("\n")
@@ -87,7 +105,6 @@ class plot_frame(tk.Frame):
         dat = dat.tolist()
         self.data.append(dat)
 
+        # removes data (FIFO) until array length = that of bufersize
         if(len(self.data) > self.buffersize):
             del self.data[0:len(self.data) - self.buffersize]
-
-        self.table_frame.update_table(self.data)

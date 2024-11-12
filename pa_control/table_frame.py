@@ -1,6 +1,12 @@
 import tkinter as tk
 import numpy as np
 
+'''
+This frame just initalizes and updates the table when called
+All data fetching is done inside plot_frame
+'''
+
+
 class table_frame(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)

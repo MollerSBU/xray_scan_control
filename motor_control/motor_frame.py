@@ -2,6 +2,11 @@ import tkinter as tk
 import subprocess
 from tkinter import messagebox
 
+'''
+Handles some special manual control of the motor
+'''
+
+
 class motor_frame(tk.Frame):
     def __init__(self, parent, motorport, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
