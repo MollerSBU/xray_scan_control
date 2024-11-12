@@ -10,10 +10,15 @@ import os
 import sys
 
 
+# motor port is /dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+
 class main_frame:
     def __init__(self, parent):
         self.root = parent
-        
+        self.motorport = "/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0"
+
+
+
         self.__initialize_mfc_gui()
         self.__initialize_xray_gui()
         self.__initialize_pa_gui()
@@ -49,12 +54,12 @@ class main_frame:
 
     def __initialize_motor_gui(self):
         self.motor_frame = motor_control.motor_frame.motor_frame(self.root,
-                borderwidth = 3, relief = tk.RIDGE)
+                motorport = self.motorport, borderwidth = 3, relief = tk.RIDGE)
         self.motor_frame.grid(row = 0, column = 2, sticky = "nw")
 
     def __initialize_scan_gui(self):
         self.scan_frame = scan_control.scan_frame.scan_frame(self.root,
-                refresh_rate = 15000, borderwidth = 3, relief = tk.RIDGE)
+                refresh_rate = 15000, motorport = self.motorport, borderwidth = 3, relief = tk.RIDGE)
         self.scan_frame.grid(row = 0, column = 3, sticky = "nw")
 
     def __initialize_image_gui(self):

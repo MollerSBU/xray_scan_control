@@ -33,6 +33,6 @@ pname=mollerScan_alpha.sh
 kill_all_processes
 
 #  Stop the motor and return it home.
-echo "D" > /dev/ttyUSB0
+echo "D" > $1
 sleep 2
 bash newmotorinit.sh

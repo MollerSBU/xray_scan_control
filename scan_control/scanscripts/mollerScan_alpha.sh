@@ -12,7 +12,7 @@ bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh
 touch $fout
 
 #set up the serialline to talk tot he motors
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+[ -z "$SERIALLINE" ] && export SERIALLINE=$3
 
 
 echo "starting new run"

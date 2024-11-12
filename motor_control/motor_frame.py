@@ -3,9 +3,9 @@ import subprocess
 from tkinter import messagebox
 
 class motor_frame(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, motorport, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        #self.refresh_rate = refresh_rate
+        self.__motorport = motorport
         self.__initialize_widgets()
 
     def __initialize_widgets(self):
@@ -30,16 +30,16 @@ class motor_frame(tk.Frame):
         
 
     def __init_motor(self):
-        subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh",
+        subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh {}".format(self.__motorport),
                         shell=True, executable = "/usr/bin/bash", stdout = subprocess.PIPE, text = True)
 
     def __controlled_move(self):
         pos = int(self.con_move_position.get())
         motor = self.motor_selection.get()
-        subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/controlledmove.sh {} {}".format(pos, motor),
+        subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/controlledmove.sh {} {} {}".format(pos, motor, self.__motorport),
                        shell=True, executable = "/usr/bin/bash", stdout = subprocess.PIPE)
         
     def __halt(self):
         if messagebox.askokcancel("Halt", "Are you sure you want to halt?"):
-            subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/HaltMeasurements.sh",
+            subprocess.run("~/MOLLER_xray_gui/motor_control/motorscripts/HaltMeasurements.sh {}".format(self.__motorport),
                         shell=True, executable = "/usr/bin/bash", stdout = subprocess.PIPE, text = True)

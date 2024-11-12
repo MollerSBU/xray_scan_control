@@ -1,6 +1,6 @@
 #! /bin/bash
 
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+[ -z "$SERIALLINE" ] && export SERIALLINE=$1
 
 stty -F $SERIALLINE ispeed 9600 ospeed 9600
 

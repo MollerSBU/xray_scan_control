@@ -8,12 +8,12 @@ import time
 from .generate_plot import generate_plot
 
 
-def run_voltage_scan(voltage, directory):
-    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/gainScan.sh {} {}".format(voltage, directory), 
+def run_voltage_scan(voltage, directory, motorport):
+    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/gainScan.sh {} {} {}".format(voltage, directory, motorport), 
                        shell=True, stdout = subprocess.PIPE)
 
-def run_position_scan(fname, directory):
-    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {} {}".format(fname, directory), 
+def run_position_scan(fname, directory, motorport):
+    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {} {} {}".format(fname, directory, motorport), 
                       shell=True, stdout = subprocess.PIPE)
 
 def plot(directory, fname):
@@ -21,12 +21,14 @@ def plot(directory, fname):
 
 
 class scan_frame(tk.Frame):
-    def __init__(self, parent, refresh_rate, *args, **kwargs):
+    def __init__(self, parent, refresh_rate, motorport, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.__directory = None
         self.__position_fname = None
         self.__refresh_rate = refresh_rate
         self.__position_scan_running  = False
+        self.__motorport = motorport
+
         self.plot_thread, self.position_scan_thread, self.voltage_scan_thread = None, None, None
         self.__initialize_widgets()
         self.__main_refresher()
@@ -88,7 +90,7 @@ class scan_frame(tk.Frame):
             if inp is None:
                 return
         
-        self.voltage_scan_thread = multiprocessing.Process(target = run_voltage_scan, args = (inp, self.__directory))
+        self.voltage_scan_thread = multiprocessing.Process(target = run_voltage_scan, args = (inp, self.__directory, self.__motorport))
         self.voltage_scan_thread.start()
 
     def __run_position_scan(self):
@@ -99,7 +101,7 @@ class scan_frame(tk.Frame):
             return
         self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
         self.__position_scan_running = True
-        self.position_scan_thread = multiprocessing.Process(target = run_position_scan, args = (self.__position_fname, self.__directory))
+        self.position_scan_thread = multiprocessing.Process(target = run_position_scan, args = (self.__position_fname, self.__directory, self.__motorport))
         self.position_scan_thread.start()
         
 

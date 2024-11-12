@@ -7,7 +7,7 @@
 #
 #
 
-[ -z "$SERIALLINE" ] && export SERIALLINE=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+[ -z "$SERIALLINE" ] && export SERIALLINE=$3
 
 MOTOR=$2
 

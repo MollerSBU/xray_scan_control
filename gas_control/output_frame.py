@@ -190,6 +190,7 @@ class output_frame(tk.Frame):
     # behavior upon closing window
     # set both mfcs to 0 flow and then destroy root
     def on_closing(self):
+        self.__check_threads()
         while len(self.threads) != 0:
             print("Waiting for {} threads to close".format(len(self.threads)))
             self.__check_threads()
