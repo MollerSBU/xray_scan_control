@@ -66,7 +66,7 @@ class input_frame(tk.Frame):
             elif ratio_input >= 0.8:
                 if not messagebox.askyesno(message = "Argon ratio >= 80%, are you sure?"):
                     return
-            if flow_rate_input > 2000 or flow_rate_input < 0:
+            if flow_rate_input > 500 or flow_rate_input < 0:
                 messagebox.showerror(message = "Invalid flow rate! Enter flow rate 0 < f < 500")
                 return
             self.flow_rate = flow_rate_input

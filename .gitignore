@@ -4,3 +4,5 @@ __pycache__/
 scans/
 # exclude directory containing temp plots 
 .tmp/
+# exclude gas logfiles
+gas_control/log/

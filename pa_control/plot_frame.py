@@ -101,9 +101,12 @@ class plot_frame(tk.Frame):
     
         # clean data
         dat = cmd.stdout.strip("\n")
-        dat = np.array([float(val.strip()) for val in dat.split(",")])
-        dat = dat.tolist()
-        self.data.append(dat)
+        try:
+            dat = np.array([float(val.strip()) for val in dat.split(",")])
+            dat = dat.tolist()
+            self.data.append(dat)
+        except:
+            print("could not read data from picoammeter")
 
         # removes data (FIFO) until array length = that of bufersize
         if(len(self.data) > self.buffersize):

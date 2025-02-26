@@ -1,6 +1,7 @@
 import tkinter as tk
 import subprocess
 import numpy as np
+from tkinter import messagebox
 
 class xray_frame(tk.Frame):
     def __init__(self, parent, refresh_rate, *args, **kwargs):
@@ -50,7 +51,10 @@ class xray_frame(tk.Frame):
 
     # intialize x-ray
     def __init_xray(self):
-        subprocess.run("~/MOLLER_xray_gui/xray_control/xray/setup_xRayGun.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
+        if not bool(self.current_values["HV"]):
+            subprocess.run("~/MOLLER_xray_gui/xray_control/xray/setup_xRayGun.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
+        else:
+            messagebox.showerror("Error", "Don't initialize the X-Ray while the HV is on.")
 
     # read entries containg values to change to and then turn on hv
     def __hv_on(self):

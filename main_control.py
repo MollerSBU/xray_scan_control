@@ -34,6 +34,7 @@ class main_frame:
         # /dev/serial/by-id contains serial devices listed with their unique ID
         # these have symlinks to the appropriate USB device
         # as long as cables are never swapped this should remain fine.
+
         addresses = ["/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_AU05T0I2-if00-port0", "/dev/serial/by-id/usb-FTDI_USB-RS232_Cable_AU05STIP-if00-port0"]
         addresses = [os.path.realpath(x) for x in addresses]
         self.gas_frame = gas_control.mfc_gui_async.mfc_GUI(self.root, 

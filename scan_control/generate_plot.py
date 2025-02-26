@@ -6,6 +6,9 @@ import subprocess
 
 # reads in data for 1 given file
 def cleanFile(directory, fname, nPoints):
+
+    pa_channel = 2
+
     pos = []
     data = []
 
@@ -41,8 +44,8 @@ def cleanFile(directory, fname, nPoints):
     sigma = np.empty(len(split_data))
 
     for i in range(len(split_data)):
-        averaged[i] = np.median(split_data[i], axis=0)[0]
-        dat = np.array(split_data[i]).T[0]
+        averaged[i] = np.median(split_data[i], axis=0)[pa_channel]
+        dat = np.array(split_data[i]).T[pa_channel]
         sigma[i] = np.std(dat[np.abs(dat - averaged[i]) < 3])
 
     return pos, averaged, sigma
@@ -61,8 +64,7 @@ def stripPos(rawPos):
 def generate_plot(directory, fname):
 
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
-    global gErrorIgnoreLevel
-    gErrorIgnoreLevel = 0
+    ROOT.gErrorIgnoreLevel = ROOT.kWarning
 
     # fnames = os.listdir(directory)
 
@@ -85,7 +87,6 @@ def generate_plot(directory, fname):
     pos = pos/2000
     averaged = averaged * -1
 
-    # TH2D *Pos_hist = new TH2D("pos_hist", "", 51, 0, 51, 51, 0, 51)
     pos_hist = ROOT.TH2D("pos_hist", "", 51, 0, 51, 51, 0, 51)
 
     for i in range(len(pos)):
@@ -123,13 +124,12 @@ def generate_plot(directory, fname):
     pad2.cd()
     current_hist.Draw()
 
-    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test.gif")
+    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test1.gif")
 
 
 if __name__ == "__main__":
     #dir = sys.argv[1]
-    fnames = os.listdir("data")
 
-    generate_plot(fnames)
+    generate_plot("/home/mollergem/MOLLER_xray_gui/scans/SBU01", "2025-02-13_18:54")
 
     pass

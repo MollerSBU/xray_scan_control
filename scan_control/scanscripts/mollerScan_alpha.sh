@@ -5,14 +5,16 @@ DIRECTORY=$2
 
 fout=$DIRECTORY/$NAME
 
+motor_port=$3
+
 # The scan might be trash if the starting point is misaligned.
 # To avoid this issue we re-initialize the coordinates for EVERY scan...
-bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh
+bash /home/mollergem/MOLLER_xray_gui/motor_control/motorscripts/newmotorinit.sh $motor_port
 
 touch $fout
 
 #set up the serialline to talk tot he motors
-[ -z "$SERIALLINE" ] && export SERIALLINE=$3
+[ -z "$SERIALLINE" ] && export SERIALLINE=$motor_port
 
 
 echo "starting new run"
@@ -21,10 +23,11 @@ YTH=224000 #64*2000
 XMID=50867
 TH=13.25
 THRAD=`echo "${TH}*3.1415926/180.0" | bc -l`
+
 STEP_SIZE=2000
 
 #y loop (change to 0)
-for i in $( eval echo {0..2000..$STEP_SIZE} )
+for i in $( eval echo {84000..100000..$STEP_SIZE} )
 do
     sleep 1
     echo "C,IA1M${i},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE
@@ -38,8 +41,7 @@ do
 
     if (((i % $((2*$STEP_SIZE))) == 0))
     then
-        #for j in $( eval echo {$max..$min..$STEP_SIZE} )
-        for j in $( eval echo {$min..$max..10000} )
+        for j in $( eval echo {$max..$min..$STEP_SIZE} )
         do
             sleep 0.1
             # # move xray to current value of "j" in x direction
@@ -54,8 +56,7 @@ do
             done
         done
      else
-        #for j in $( eval echo {$min..$max..$STEP_SIZE} )
-        for j in $( eval echo {$max..$min..10000} )
+        for j in $( eval echo {$min..$max..$STEP_SIZE} )
         do
             sleep 0.1
             echo $j
@@ -73,4 +74,4 @@ do
     fi
 done
 
-# bash /home/mollergem/Products/MasterControlMoller/xray/xRayGun_OFF.sh
+bash /home/mollergem/Products/MasterControlMoller/xray/xRayGun_OFF.sh

@@ -57,10 +57,6 @@ class output_frame(tk.Frame):
         self.CO2_rate = 0
         self.warning_enabled = False
         self.warning_counter = 0
-        self.writing_counter = 0
-
-        
-        self.file = open("/home/mollergem/MOLLER_xray_gui/gas_control/log/" + time.strftime("%Y_%m_%d_%H:%M:%S"), "w+")
 
         # henceforth mfc '0' is for Ar and mfc '1' is for CO2, could change
         asyncio.run(self.__init__mfc(self.addresses[0], 0))
@@ -106,10 +102,6 @@ class output_frame(tk.Frame):
                 self.__run_warning()
             self.__open_thread_get(0)
             self.__open_thread_get(1)
-        self.writing_counter += 1
-        if self.writing_counter > 10:
-            self.__write_file()
-            self.writing_counter = 0
         self.root.after(self.refresh_rate, self.__main_refresher)
 
     def __check_threads(self):
@@ -159,32 +151,16 @@ class output_frame(tk.Frame):
     # sets mfc output in table
     def __set_table(self, vals, n_mfc):
         for i in range(len(self.row_labels)):
-            if n_mfc == 0 and (self.row_labels[i] == "volumetric_flow" or self.row_labels[i] == "mass_flow" or self.row_labels[i] == "setpoint"):
-                # self.row_labels = ["pressure", "temperature", "volumetric_flow", "mass_flow", "setpoint", "gas"]
-                self.flow_labels[n_mfc][i].config(text = str(float(vals[self.row_labels[i]]) * 1000))
             self.flow_labels[n_mfc][i].config(text = vals[self.row_labels[i]])
-
-
-    def __write_file(self):
-        vals = []
-        for j in range(2):
-            arr = []
-            for i in range(len(self.row_labels)):
-                arr.append(self.flow_labels[j][i].cget("text"))
-            vals.append(arr)
-        print(time.strftime("%H:%M:%S") + "," + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
-        self.file.write(time.strftime("%H:%M:%S") + ", " + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
 
     # if flag_new_setpoint is changed to True (in input_frame.py)
     # then we set new values to flow meters and change flag to false
     def __set_values(self):
         total_rate = self.in_frame.flow_rate
         ratio = self.in_frame.ratio
-        self.Ar_rate = ratio * total_rate / 1000
+        self.Ar_rate = ratio * total_rate
         self.CO2_rate = (1 - ratio)* total_rate
         self.in_frame.flag_new_setpoint = False
-        #self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)))
-        # Ar ratio divided by 100 because the mfc reads in values as LPM, but we set as CCM.
         self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)))
         self.threads[-1].start()
         self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[1], self.CO2_rate)))
@@ -214,13 +190,11 @@ class output_frame(tk.Frame):
     # behavior upon closing window
     # set both mfcs to 0 flow and then destroy root
     def on_closing(self):
-        counter = 0
         self.__check_threads()
-        while len(self.threads) != 0 and counter < 10:
+        while len(self.threads) != 0:
             print("Waiting for {} threads to close".format(len(self.threads)))
             self.__check_threads()
             if len(self.threads) != 0:
-                counter += 1
                 time.sleep(1)
         if self.in_frame.set_mfcs_to_zero.get():
             self.__clear_warnings()
