@@ -60,7 +60,8 @@ class output_frame(tk.Frame):
         self.writing_counter = 0
 
         
-        self.file = open("/home/mollergem/MOLLER_xray_gui/gas_control/log/" + time.strftime("%Y_%m_%d_%H:%M:%S"), "w+")
+        self.file = open("/home/mollergem/MOLLER_xray_gui/gas_control/log/" + time.strftime("%Y_%m_%d_%H:%M:%S") + ".txt", "w")
+        self.file.write("time, p_Ar(psi), T_Ar(C), flow_v_Ar (lpm), flow_m_Ar (lpm), setpoint (lpm), gas,  p_CO2(psi), T_CO2(C), flow_v_CO2 (sccm), flow_m_CO2 (sccm), setpoint (sccm), gas\n")
 
         # henceforth mfc '0' is for Ar and mfc '1' is for CO2, could change
         asyncio.run(self.__init__mfc(self.addresses[0], 0))
@@ -172,8 +173,9 @@ class output_frame(tk.Frame):
             for i in range(len(self.row_labels)):
                 arr.append(self.flow_labels[j][i].cget("text"))
             vals.append(arr)
-        print(time.strftime("%H:%M:%S") + "," + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
-        self.file.write(time.strftime("%H:%M:%S") + ", " + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
+        #print(time.strftime("%H:%M:%S") + "," + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
+        self.file.write(str(time.strftime("%H:%M:%S")) + ", " + str(vals).replace("[", "").replace("]", "").replace("'", "") + "\n")
+        self.file.flush()
 
     # if flag_new_setpoint is changed to True (in input_frame.py)
     # then we set new values to flow meters and change flag to false
@@ -228,6 +230,7 @@ class output_frame(tk.Frame):
                 self.__closing_wrapper(i)
             
     def __closing_wrapper(self, n_mfc):
+        self.file.close()
         self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[n_mfc], 0)))
         self.threads[-1].start()
 
