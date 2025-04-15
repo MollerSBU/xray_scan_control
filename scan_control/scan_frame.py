@@ -12,8 +12,12 @@ def run_voltage_scan(voltage, directory, motorport):
     subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/gainScan.sh {} {} {}".format(voltage, directory, motorport), 
                        shell=True, stdout = subprocess.PIPE)
 
-def run_position_scan(fname, directory, motorport):
+def run_long_position_scan(fname, directory, motorport):
     subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/mollerScan_alpha.sh {} {} {}".format(fname, directory, motorport), 
+                      shell=True, stdout = subprocess.PIPE)
+
+def run_cont_position_scan(fname, directory, motorport):
+    subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/moller_scan_continuous.sh {} {} {}".format(fname, directory, motorport), 
                       shell=True, stdout = subprocess.PIPE)
 
 def plot(directory, fname):
@@ -59,7 +63,8 @@ class scan_frame(tk.Frame):
         #self.status = tk.Label(self, text = "Status: Unknown")
         #self.status.grid(row = 2, column = 0)
 
-        run_select = {"voltage": "voltage", "position": "position"}
+        run_select = {"voltage": "voltage", "position_long": "position long", "position_cont": "position cont"}
+        run_select = {"voltage": "voltage", "position_long": "position long", "position_cont": "position cont"}
         self.__run_type = tk.StringVar(self, "voltage")
 
         i = 0
@@ -75,8 +80,10 @@ class scan_frame(tk.Frame):
         if messagebox.askokcancel("Begin Scan", "About to begin scan, are you sure?"):
             if self.__run_type.get() == "voltage":
                 self.__run_voltage_scan()
-            elif self.__run_type.get() == "position":
-                self.__run_position_scan()
+            elif self.__run_type.get() == "position_long":
+                self.__run_long_position_scan()
+            elif self.__run_type.get() == "position_cont":
+                self.__run_cont_position_scan()
 
     def __run_voltage_scan(self):
         if not self.__valid_directory():
@@ -93,7 +100,7 @@ class scan_frame(tk.Frame):
         self.voltage_scan_thread = multiprocessing.Process(target = run_voltage_scan, args = (inp, self.__directory, self.__motorport))
         self.voltage_scan_thread.start()
 
-    def __run_position_scan(self):
+    def __run_long_position_scan(self):
         if not self.__valid_directory():
             return
         if not messagebox.askokcancel(title = "Confirm",
@@ -101,9 +108,19 @@ class scan_frame(tk.Frame):
             return
         self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
         self.__position_scan_running = True
-        self.position_scan_thread = multiprocessing.Process(target = run_position_scan, args = (self.__position_fname, self.__directory, self.__motorport))
+        self.position_scan_thread = multiprocessing.Process(target = run_long_position_scan, args = (self.__position_fname, self.__directory, self.__motorport))
         self.position_scan_thread.start()
-        
+    
+    def __run_cont_position_scan(self):
+        if not self.__valid_directory():
+            return
+        if not messagebox.askokcancel(title = "Confirm",
+                message = "Are you sure you want to initiate a position scan? It cannot be easily stopped once started."):
+            return
+        self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
+        self.__position_scan_running = True
+        self.position_scan_thread = multiprocessing.Process(target = run_cont_position_scan, args = (self.__position_fname, self.__directory, self.__motorport))
+        self.position_scan_thread.start()
 
     def __check_directory(self):
         dirname = self.__directory_name.get()

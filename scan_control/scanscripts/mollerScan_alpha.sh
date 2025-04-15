@@ -27,7 +27,8 @@ THRAD=`echo "${TH}*3.1415926/180.0" | bc -l`
 STEP_SIZE=2000
 
 #y loop (change to 0)
-for i in $( eval echo {84000..100000..$STEP_SIZE} )
+for i in $( eval echo {64000..100000..$STEP_SIZE} )
+#for i in $( eval echo {0..84000..$STEP_SIZE} )
 do
     sleep 1
     echo "C,IA1M${i},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE

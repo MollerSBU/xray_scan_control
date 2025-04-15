@@ -182,21 +182,36 @@ class output_frame(tk.Frame):
     def __set_values(self):
         total_rate = self.in_frame.flow_rate
         ratio = self.in_frame.ratio
+
+        # note : alicat source code truncates after two decimal points
+        # this is okay for the smaller flowmeter, where setpoint is always integer
+        # not okay for the larger one where setpoint is in L/min (e.g. 0.225 L/m truncates to 0.22)
+        # problem because mixture can be off by as much as 1%
+        # plan: round argon rate to nearest two decimals
+        # recalculate co2 rate based on this then round it to two decimals as well
+        # for e.g. 75/25 minimum ratio is 74.9888% and maximum is 75%
+
+        # Ar ratio divided by 1000 because the mfc reads in values as LPM, but we set as CCM.
         self.Ar_rate = ratio * total_rate / 1000
-        self.CO2_rate = (1 - ratio)* total_rate
+
+        self.Ar_rate = round(self.Ar_rate, 2)
+        self.CO2_rate = round((self.Ar_rate * 1000) * ((1 - ratio) / ratio), 2)
+
         self.in_frame.flag_new_setpoint = False
-        #self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)))
-        # Ar ratio divided by 100 because the mfc reads in values as LPM, but we set as CCM.
+
         self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[0], self.Ar_rate)))
         self.threads[-1].start()
         self.threads.append(threading.Thread(target = async_wrapper_set, args = (self.mfc[1], self.CO2_rate)))
         self.threads[-1].start()
 
     def __check_rate(self):
-        if self.out_dict[0] is not None and self.Ar_rate != 0 and self.CO2_rate != 0:
+        if self.out_dict[0] is not None:
             flag = False
             for i in range(2):
                 correct_rate = self.Ar_rate if i == 0 else self.CO2_rate
+                if int(correct_rate) == 0:
+                    flag = False
+                    continue
                 current_flow = self.out_dict[i]['mass_flow']
                 if current_flow < correct_rate * 0.95 or current_flow > correct_rate * 1.05:
                     flag = True
@@ -223,7 +238,7 @@ class output_frame(tk.Frame):
             self.__check_threads()
             if len(self.threads) != 0:
                 counter += 1
-                time.sleep(1)
+                time.sleep(2)
         if self.in_frame.set_mfcs_to_zero.get():
             self.__clear_warnings()
             for i in range(2):

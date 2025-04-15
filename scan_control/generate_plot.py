@@ -7,7 +7,7 @@ import subprocess
 # reads in data for 1 given file
 def cleanFile(directory, fname, nPoints):
 
-    pa_channel = 2
+    pa_channel = 3
 
     pos = []
     data = []
@@ -105,6 +105,17 @@ def generate_plot(directory, fname):
     pad1 = ROOT.TPad("pad1", "pad1", 0, 0.3, 1.0, 1.0)
     pad2 = ROOT.TPad("pad2", "pad2", 0, 0.0, 1.0, 0.3)
 
+    circle1 = ROOT.TEllipse(1, 10.16, 1, 1)
+    circle2 = ROOT.TEllipse(3, 19.05, 1, 1)
+    circle3 = ROOT.TEllipse(5, 27.94, 1, 1)
+    circle4 = ROOT.TEllipse(9.5, 46.36, 1, 1)
+
+    circle5 = ROOT.TEllipse(49.5, 10.16, 1, 1)
+    circle6 = ROOT.TEllipse(47.5, 19.05, 1, 1)
+    circle7 = ROOT.TEllipse(45.5, 27.94, 1, 1)
+    circle8 = ROOT.TEllipse(41, 46.36, 1, 1)
+
+
     pad1.Draw()
     pad1.SetLeftMargin(l)
     pad1.SetRightMargin(r+0.05)
@@ -113,6 +124,47 @@ def generate_plot(directory, fname):
     pad1.cd()
     pos_hist.SetStats(0)
     pos_hist.Draw("COLZ")
+
+    circle1.SetLineColor(ROOT.kRed)
+    circle1.SetLineWidth(3)
+    circle1.SetFillColorAlpha(ROOT.kRed, 0)
+    circle1.Draw("same")
+
+    circle2.SetLineColor(ROOT.kRed)
+    circle2.SetLineWidth(3)
+    circle2.SetFillColorAlpha(ROOT.kRed, 0)
+    circle2.Draw("same")
+
+    circle3.SetLineColor(ROOT.kRed)
+    circle3.SetLineWidth(3)
+    circle3.SetFillColorAlpha(ROOT.kRed, 0)
+    circle3.Draw("same")
+
+    circle4.SetLineColor(ROOT.kRed)
+    circle4.SetLineWidth(3)
+    circle4.SetFillColorAlpha(ROOT.kRed, 0)
+    circle4.Draw("same")
+
+    circle5.SetLineColor(ROOT.kBlue)
+    circle5.SetLineWidth(3)
+    circle5.SetFillColorAlpha(ROOT.kRed, 0)
+    circle5.Draw("same")
+
+    circle6.SetLineColor(ROOT.kBlue)
+    circle6.SetLineWidth(3)
+    circle6.SetFillColorAlpha(ROOT.kRed, 0)
+    circle6.Draw("same")
+
+    circle7.SetLineColor(ROOT.kBlue)
+    circle7.SetLineWidth(3)
+    circle7.SetFillColorAlpha(ROOT.kRed, 0)
+    circle7.Draw("same")
+
+    circle8.SetLineColor(ROOT.kBlue)
+    circle8.SetLineWidth(3)
+    circle8.SetFillColorAlpha(ROOT.kRed, 0)
+    circle8.Draw("same")
+
 
     canvas.cd()
 
@@ -124,12 +176,12 @@ def generate_plot(directory, fname):
     pad2.cd()
     current_hist.Draw()
 
-    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test1.gif")
+    canvas.SaveAs("/home/mollergem/MOLLER_xray_gui/scan_control/.tmp/test.gif")
 
 
 if __name__ == "__main__":
     #dir = sys.argv[1]
 
-    generate_plot("/home/mollergem/MOLLER_xray_gui/scans/SBU01", "2025-02-13_18:54")
+    generate_plot("/home/mollergem/MOLLER_xray_gui/scans/SBU04", "concatenated_data")
 
     pass

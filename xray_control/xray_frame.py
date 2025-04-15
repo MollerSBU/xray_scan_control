@@ -52,7 +52,7 @@ class xray_frame(tk.Frame):
     # intialize x-ray
     def __init_xray(self):
         if not bool(self.current_values["HV"]):
-            subprocess.run("~/MOLLER_xray_gui/xray_control/xray/setup_xRayGun.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
+            subprocess.run("~/MOLLER_xray_gui/xray_control/xray_scripts/setup_xRayGun.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
         else:
             messagebox.showerror("Error", "Don't initialize the X-Ray while the HV is on.")
 
@@ -60,12 +60,12 @@ class xray_frame(tk.Frame):
     def __hv_on(self):
         mA_to = int(float(self.set_current.get()) * 4095 / 5)
         kV_to = int(float(self.set_voltage.get()) * 4095 / 65)
-        subprocess.run("~/MOLLER_xray_gui/xray_control/xray/xRayGun_ON.sh -k {} -m {}".format(kV_to, mA_to)
+        subprocess.run("~/MOLLER_xray_gui/xray_control/xray_scripts/xRayGun_ON.sh -k {} -m {}".format(kV_to, mA_to)
                        , shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
 
     # turn hv off
     def __hv_off(self):
-        subprocess.run("~/MOLLER_xray_gui/xray_control/xray/xRayGun_OFF.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
+        subprocess.run("~/MOLLER_xray_gui/xray_control/xray_scripts/xRayGun_OFF.sh", shell=True, executable = "/usr/bin/sh", stdout = subprocess.PIPE, text = True)
 
     def __get_current_values(self):
         cmd_vals = subprocess.run("~/Products/XRay/xray_client_tcp 192.168.1.4 20, ", 
