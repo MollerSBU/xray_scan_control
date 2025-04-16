@@ -84,31 +84,38 @@ class xray_frame(tk.Frame):
         return vals
 
     def __update_current_values(self):
-        vals = self.__get_current_values()
-        self.current_values = dict(zip(self.keys, vals))
+        try:
+            vals = self.__get_current_values()
+            self.current_values = dict(zip(self.keys, vals))
 
-        self.current_values["kV"] = (self.current_values["kV"] * 65000 / 4096) / 1000
-        self.current_values["mA"] = (self.current_values["mA"] * 6000 / 4096) / 1000
-        self.current_values["fA"] = (self.current_values["fA"] * 1000 / 4096) / 100
+            self.current_values["kV"] = (self.current_values["kV"] * 65000 / 4096) / 1000
+            self.current_values["mA"] = (self.current_values["mA"] * 6000 / 4096) / 1000
+            self.current_values["fA"] = (self.current_values["fA"] * 1000 / 4096) / 100
 
-        self.current_hv.config(text = "{:.2f} kV".format(round(self.current_values["kV"], 2)))
-        self.current_current.config(text = "{:.3f} mA".format(round(self.current_values["mA"], 3)))
-        self.current_filament.config(text = "{:.2f} fA".format(round(self.current_values["fA"], 2)))
+            self.current_hv.config(text = "{:.2f} kV".format(round(self.current_values["kV"], 2)))
+            self.current_current.config(text = "{:.3f} mA".format(round(self.current_values["mA"], 3)))
+            self.current_filament.config(text = "{:.2f} fA".format(round(self.current_values["fA"], 2)))
 
-        # HV = 0 if off, interlock = 0 if closed, faults = 0 if there are none
+            # HV = 0 if off, interlock = 0 if closed, faults = 0 if there are none
 
-        if(bool(self.current_values["HV"])):
-            self.hv_faults.config(text = "High Voltage:  ON", bg = "green")
-        else:
-            self.hv_faults.config(text = "High Voltage: OFF", bg = "red")
+            if(bool(self.current_values["HV"])):
+                self.hv_faults.config(text = "High Voltage:  ON", bg = "green")
+            else:
+                self.hv_faults.config(text = "High Voltage: OFF", bg = "red")
 
-        if(not bool(self.current_values["IL"])):
-            self.interlock_faults.config(text = "Interlocks: OK", bg = "green")
-        else:
-            self.interlock_faults.config(text = "Interlocks: OPEN", bg = "red")
+            if(not bool(self.current_values["IL"])):
+                self.interlock_faults.config(text = "Interlocks: OK", bg = "green")
+            else:
+                self.interlock_faults.config(text = "Interlocks: OPEN", bg = "red")
 
-        if(not bool(self.current_values["FA"])):
-            self.faults.config(text = "No Faults", bg = "green")
-        else:
-            self.faults.config(text = "Fault Condition", bg = "red")
+            if(not bool(self.current_values["FA"])):
+                self.faults.config(text = "No Faults", bg = "green")
+            else:
+                self.faults.config(text = "Fault Condition", bg = "red")
+        except:
+            self.current_hv.config(text = "ERR")
+            self.current_current.config(text = "ERR")
+            self.current_filament.config(text = "ERR")
+            messagebox.showwarning("Warning", "Could not read parameters.\nPlease wait to see if issue fixes itself.\nIf not please restart.")
+
 

@@ -33,8 +33,8 @@ STEP_SIZE=2000
     bash /home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/paLoop.sh &
 } >> $fout
 
-#for i in $( eval echo {0..100000..$STEP_SIZE} )
-for i in $( eval echo {60000..100000..$STEP_SIZE} )
+for i in $( eval echo {0..100000..$STEP_SIZE} )
+#for i in $( eval echo {60000..100000..$STEP_SIZE} )
 do
     sleep 1
     echo "C,IA1M${i},R" > $SERIALLINE; read -n 1 STATUS < $SERIALLINE; echo "C" > $SERIALLINE

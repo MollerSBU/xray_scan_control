@@ -20,8 +20,9 @@ def run_cont_position_scan(fname, directory, motorport):
     subprocess.run("/home/mollergem/MOLLER_xray_gui/scan_control/scanscripts/moller_scan_continuous.sh {} {} {}".format(fname, directory, motorport), 
                       shell=True, stdout = subprocess.PIPE)
 
-def plot(directory, fname):
-    generate_plot(directory, fname)
+def plot(directory, fname, continuous_scan):
+    if not continuous_scan:
+        generate_plot(directory, fname)
 
 
 class scan_frame(tk.Frame):
@@ -32,6 +33,8 @@ class scan_frame(tk.Frame):
         self.__refresh_rate = refresh_rate
         self.__position_scan_running  = False
         self.__motorport = motorport
+
+        self.__continuous_scan = True
 
         self.plot_thread, self.position_scan_thread, self.voltage_scan_thread = None, None, None
         self.__initialize_widgets()
@@ -50,7 +53,7 @@ class scan_frame(tk.Frame):
                     self.__position_scan_running = False
                     get_plot = False
             if get_plot:
-                self.plot_thread = multiprocessing.Process(target = plot, args = (self.__directory, self.__position_fname))
+                self.plot_thread = multiprocessing.Process(target = plot, args = (self.__directory, self.__position_fname, self.__continuous_scan))
                 self.plot_thread.start()
         self.after(self.__refresh_rate, self.__main_refresher)
 
@@ -106,6 +109,7 @@ class scan_frame(tk.Frame):
         if not messagebox.askokcancel(title = "Confirm",
                 message = "Are you sure you want to initiate a position scan? It cannot be easily stopped once started."):
             return
+        self.__continuous_scan = False
         self.__position_fname = time.strftime("%Y-%m-%d_%H:%M", time.gmtime())
         self.__position_scan_running = True
         self.position_scan_thread = multiprocessing.Process(target = run_long_position_scan, args = (self.__position_fname, self.__directory, self.__motorport))
