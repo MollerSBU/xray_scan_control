@@ -6,3 +6,6 @@ scans/
 .tmp/
 # exclude gas logfiles
 gas_control/log/
+# exclude hv stability scans
+scan_control/scanscripts/*.log
+scan_control/scanscripts/hv_stability_scans/

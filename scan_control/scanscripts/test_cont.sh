@@ -60,13 +60,13 @@
 #     fi
 # done
 
-sleep 5
+# sleep 5
 
-stringarray=(`ps -ef | grep paLoop.sh`)
-echo "I will now kill  ${stringarray[1]}"
-kill ${stringarray[1]}
-echo "completed kill command"
-sleep 1
-echo "completed sleep"
+# stringarray=(`ps -ef | grep paLoop.sh`)
+# echo "I will now kill  ${stringarray[1]}"
+# kill ${stringarray[1]}
+# echo "completed kill command"
+# sleep 1
+# echo "completed sleep"
 
 #bash /home/mollergem/Products/MasterControlMoller/xray/xRayGun_OFF.sh

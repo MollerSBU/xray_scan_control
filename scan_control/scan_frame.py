@@ -1,8 +1,8 @@
 import tkinter as tk
 import subprocess
 from tkinter import messagebox, simpledialog
+import signal
 import os
-import threading
 import multiprocessing
 import time
 from .generate_plot import generate_plot
@@ -66,8 +66,8 @@ class scan_frame(tk.Frame):
         #self.status = tk.Label(self, text = "Status: Unknown")
         #self.status.grid(row = 2, column = 0)
 
-        run_select = {"voltage": "voltage", "position_long": "position long", "position_cont": "position cont"}
-        run_select = {"voltage": "voltage", "position_long": "position long", "position_cont": "position cont"}
+        run_select = {"voltage": "voltage", "position_long": "position_long", "position_cont": "position_cont"}
+        run_select = {"voltage": "voltage", "position_long": "position_long", "position_cont": "position_cont"}
         self.__run_type = tk.StringVar(self, "voltage")
 
         i = 0
@@ -78,6 +78,17 @@ class scan_frame(tk.Frame):
             i += 1
 
         tk.Button(self, text = "Begin Run", command = self.__confirm_run).grid(row = 4, column = 0)
+        tk.Button(self, text = "Cancel Run", command = self.__cancel_run).grid(row = 4, column = 1)
+
+
+    def __cancel_run(self):
+        p = subprocess.Popen(["ps", "-ef"], stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        for line in out.splitlines():
+            line = str(line)
+            if "paLoop" in line or "moller_scan_continuous" in line or "mollerScan_alpha" in line or "gainScan" in line:
+                pid = int(line.split()[1])
+                os.kill(pid, signal.SIGKILL)
 
     def __confirm_run(self):
         if messagebox.askokcancel("Begin Scan", "About to begin scan, are you sure?"):

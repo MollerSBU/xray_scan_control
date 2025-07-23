@@ -3,7 +3,7 @@
 OUTPUT_FILE=${1:-currents.log}
 echo "OUTPUT file: $OUTPUT_FILE"
 touch "$OUTPUT_FILE"
-total=8000
+total=12000
 for ((i=1; i<=total; i++))
 do
     echo currents | netcat -w 1 -t localhost 50001 >> ${OUTPUT_FILE}
